@@ -79,6 +79,17 @@ function startCharacterSelection() {
   showScreen('character-selection-screen');
   selectionTimeLeft = 8;
   
+  // Reset character cards
+  const fireCard = document.getElementById('fire-card');
+  const waterCard = document.getElementById('water-card');
+  
+  if (fireCard) {
+    fireCard.classList.remove('selected', 'disabled');
+  }
+  if (waterCard) {
+    waterCard.classList.remove('selected', 'disabled');
+  }
+  
   // Update UI
   updateSelectionTimer();
   

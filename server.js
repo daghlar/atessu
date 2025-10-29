@@ -220,13 +220,21 @@ io.on('connection', (socket) => {
   
   // Handle character selection
   socket.on('character-selected', (data) => {
-    if (characterSelected) return;
+    console.log(`Received character selection from ${socket.id}:`, data);
+    
+    if (characterSelected) {
+      console.log('Character already selected, ignoring');
+      return;
+    }
     
     const selectedChar = data.character;
     
     // Check if character is already taken
     const existingCharacters = Object.values(room.players).map(p => p.character);
+    console.log('Existing characters:', existingCharacters);
+    
     if (existingCharacters.includes(selectedChar)) {
+      console.log(`Character ${selectedChar} is already taken`);
       socket.emit('character-taken', { character: selectedChar });
       return;
     }
@@ -235,7 +243,7 @@ io.on('connection', (socket) => {
     characterSelected = true;
     character = selectedChar;
     
-    console.log(`Player ${socket.id} selected ${character}`);
+    console.log(`Player ${socket.id} selected ${character}, assigning...`);
     assignCharacter(socket, roomId, character);
   });
 

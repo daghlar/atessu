@@ -14,10 +14,7 @@ function joinRoom(code) {
   // Update URL
   window.history.replaceState({}, '', `?room=${roomId}`);
   
-  // Show character selection screen
-  window.UI.startCharacterSelection();
-  
-  // Connect to socket
+  // Connect to socket first
   if (socket) {
     socket.disconnect();
   }
@@ -37,9 +34,27 @@ function joinRoom(code) {
 
 // Send character selection to server
 function sendCharacterSelection(character) {
-  if (socket && socket.connected) {
-    socket.emit('character-selected', { character });
+  console.log('Sending character selection:', character);
+  
+  if (!socket) {
+    console.error('Socket not initialized');
+    window.UI.showToast('Connection error. Please try again.', 'error');
+    return;
   }
+  
+  if (!socket.connected) {
+    console.error('Socket not connected');
+    window.UI.showToast('Connecting... Please wait.', 'info');
+    
+    // Retry after connection
+    socket.once('connect', () => {
+      socket.emit('character-selected', { character });
+    });
+    return;
+  }
+  
+  socket.emit('character-selected', { character });
+  console.log('Character selection sent');
 }
 
 // Leave room
@@ -77,7 +92,10 @@ function setupSocketListeners() {
   // Connection established
   socket.on('connect', () => {
     console.log('Connected to server');
-    window.UI.showToast('Connected to server', 'success');
+    window.UI.showToast('Connected! 🎮', 'success');
+    
+    // Show character selection after connection
+    window.UI.startCharacterSelection();
   });
 
   // Room is full
@@ -142,22 +160,31 @@ function setupSocketListeners() {
     // Start timer
     window.UI.startTimer();
     
-    // Initialize video chat
-    if (window.VideoChat) {
-      window.VideoChat.init().then(() => {
-        // Create WebRTC offer after a short delay
-        setTimeout(() => {
-          if (playerCharacter === 'fire') {
-            window.VideoChat.createOffer();
-          }
-        }, 1000);
-      });
-    }
-    
     // Initialize Phaser game if not already
     if (window.initPhaserGame) {
       window.initPhaserGame();
     }
+    
+    // Initialize video chat after a short delay
+    setTimeout(() => {
+      if (window.VideoChat) {
+        console.log('Initializing video chat...');
+        window.VideoChat.init().then(() => {
+          console.log('Video chat initialized');
+          
+          // Create WebRTC offer (fire player initiates)
+          setTimeout(() => {
+            if (playerCharacter === 'fire') {
+              console.log('Creating WebRTC offer (fire player)');
+              window.VideoChat.createOffer();
+            }
+          }, 1500);
+        }).catch(error => {
+          console.error('Video chat initialization failed:', error);
+          window.UI.showToast('Camera permission denied or unavailable', 'error');
+        });
+      }
+    }, 500);
   });
 
   // WebRTC signaling
