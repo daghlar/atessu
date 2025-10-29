@@ -23,7 +23,13 @@ function joinRoom(code) {
   }
   
   socket = io({
-    query: { room: roomId }
+    query: { room: roomId },
+    reconnection: true,
+    reconnectionDelay: 1000,
+    reconnectionDelayMax: 5000,
+    reconnectionAttempts: 5,
+    timeout: 20000,
+    transports: ['websocket', 'polling']
   });
   
   setupSocketListeners();
@@ -40,6 +46,11 @@ function sendCharacterSelection(character) {
 function leaveRoom() {
   if (socket) {
     socket.disconnect();
+  }
+  
+  // Stop video chat
+  if (window.VideoChat) {
+    window.VideoChat.stop();
   }
   
   gameStarted = false;
@@ -131,9 +142,43 @@ function setupSocketListeners() {
     // Start timer
     window.UI.startTimer();
     
+    // Initialize video chat
+    if (window.VideoChat) {
+      window.VideoChat.init().then(() => {
+        // Create WebRTC offer after a short delay
+        setTimeout(() => {
+          if (playerCharacter === 'fire') {
+            window.VideoChat.createOffer();
+          }
+        }, 1000);
+      });
+    }
+    
     // Initialize Phaser game if not already
     if (window.initPhaserGame) {
       window.initPhaserGame();
+    }
+  });
+
+  // WebRTC signaling
+  socket.on('webrtc-offer', (data) => {
+    console.log('Received WebRTC offer');
+    if (window.VideoChat) {
+      window.VideoChat.handleOffer(data.offer);
+    }
+  });
+
+  socket.on('webrtc-answer', (data) => {
+    console.log('Received WebRTC answer');
+    if (window.VideoChat) {
+      window.VideoChat.handleAnswer(data.answer);
+    }
+  });
+
+  socket.on('ice-candidate', (data) => {
+    console.log('Received ICE candidate');
+    if (window.VideoChat) {
+      window.VideoChat.handleIceCandidate(data.candidate);
     }
   });
 
@@ -218,12 +263,6 @@ function setupSocketListeners() {
     
     gameStarted = false;
   });
-
-  // Connection error
-  socket.on('connect_error', (error) => {
-    console.error('Connection error:', error);
-    window.UI.showToast('Connection error. Please try again.', 'error');
-  });
 }
 
 // Send input to server
@@ -300,3 +339,5 @@ window.sendCharacterSelection = sendCharacterSelection;
 window.getPlayerCharacter = () => playerCharacter;
 window.isGameStarted = () => gameStarted;
 window.updateGameStats = updateGameStats;
+window.getRoomId = () => roomId;
+window.socket = socket;

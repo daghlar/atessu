@@ -246,6 +246,22 @@ io.on('connection', (socket) => {
     }
   });
 
+  // WebRTC signaling
+  socket.on('webrtc-offer', (data) => {
+    console.log('Relaying WebRTC offer');
+    socket.to(data.room).emit('webrtc-offer', { offer: data.offer });
+  });
+
+  socket.on('webrtc-answer', (data) => {
+    console.log('Relaying WebRTC answer');
+    socket.to(data.room).emit('webrtc-answer', { answer: data.answer });
+  });
+
+  socket.on('ice-candidate', (data) => {
+    console.log('Relaying ICE candidate');
+    socket.to(data.room).emit('ice-candidate', { candidate: data.candidate });
+  });
+
   // Handle disconnect
   socket.on('disconnect', () => {
     console.log('Player disconnected:', socket.id);
