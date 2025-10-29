@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ateş ve Su - Cooperative Multiplayer Game</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <!-- Lobby Screen -->
+  <div id="lobby-screen" class="screen active">
+    <div class="lobby-container">
+      <div class="game-title">
+        <h1>🔥 Ateş ve Su 💧</h1>
+        <p class="subtitle">Real-Time Cooperative Multiplayer</p>
+      </div>
+
+      <div class="lobby-content">
+        <div class="lobby-section">
+          <h2>🎮 Create New Room</h2>
+          <button id="create-room-btn" class="btn btn-primary">
+            <span class="btn-icon">➕</span>
+            Create Room
+          </button>
+        </div>
+
+        <div class="divider">
+          <span>OR</span>
+        </div>
+
+        <div class="lobby-section">
+          <h2>🚪 Join Existing Room</h2>
+          <div class="input-group">
+            <input 
+              type="text" 
+              id="room-code-input" 
+              placeholder="Enter 6-digit room code"
+              maxlength="6"
+              autocomplete="off"
+            >
+            <button id="join-room-btn" class="btn btn-secondary">
+              <span class="btn-icon">🔗</span>
+              Join Room
+            </button>
+          </div>
+        </div>
+
+        <div class="info-section">
+          <h3>ℹ️ How to Play</h3>
+          <ul class="info-list">
+            <li><strong>🔥 Fire Player:</strong> Press red button, avoid water</li>
+            <li><strong>💧 Water Player:</strong> Press blue button, avoid lava</li>
+            <li><strong>🎯 Goal:</strong> Both press buttons → doors open → reach exits</li>
+            <li><strong>⌨️ Controls:</strong> Arrow Keys / WASD + Space to jump</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Character Selection Screen -->
+  <div id="character-selection-screen" class="screen">
+    <div class="character-selection-container">
+      <div class="selection-header">
+        <h2>🎮 Choose Your Character</h2>
+        <div class="timer-bar-container">
+          <div id="selection-timer-bar" class="timer-bar"></div>
+          <span id="selection-timer-text" class="timer-text">8s</span>
+        </div>
+      </div>
+
+      <div class="character-options">
+        <div class="character-card" id="fire-card" data-character="fire">
+          <div class="character-icon">🔥</div>
+          <h3>Fire Player</h3>
+          <ul class="character-abilities">
+            <li>✓ Press red buttons</li>
+            <li>✗ Dies in water</li>
+            <li>🎯 Reach fire exit</li>
+          </ul>
+          <button class="btn btn-primary select-character-btn" data-character="fire">
+            <span class="btn-icon">🔥</span>
+            Select Fire
+          </button>
+        </div>
+
+        <div class="character-card" id="water-card" data-character="water">
+          <div class="character-icon">💧</div>
+          <h3>Water Player</h3>
+          <ul class="character-abilities">
+            <li>✓ Press blue buttons</li>
+            <li>✗ Dies in lava</li>
+            <li>🎯 Reach water exit</li>
+          </ul>
+          <button class="btn btn-primary select-character-btn" data-character="water">
+            <span class="btn-icon">💧</span>
+            Select Water
+          </button>
+        </div>
+      </div>
+
+      <p class="auto-select-notice">⏱️ Auto-select in <span id="auto-select-countdown">8</span> seconds if not chosen</p>
+    </div>
+  </div>
+
+  <!-- Waiting Room Screen -->
+  <div id="waiting-screen" class="screen">
+    <div class="waiting-container">
+      <div class="waiting-header">
+        <h2>🎮 Waiting Room</h2>
+        <div class="room-info">
+          <div class="room-code-display">
+            <span class="label">Room Code:</span>
+            <span id="current-room-code" class="code">------</span>
+            <button id="copy-code-btn" class="btn-icon-small" title="Copy code">📋</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="players-status">
+        <div class="player-slot" id="player-slot-1">
+          <div class="player-avatar fire">🔥</div>
+          <div class="player-info">
+            <span class="player-name">Fire Player</span>
+            <span class="player-status">Waiting...</span>
+          </div>
+        </div>
+
+        <div class="vs-divider">VS</div>
+
+        <div class="player-slot" id="player-slot-2">
+          <div class="player-avatar water">💧</div>
+          <div class="player-info">
+            <span class="player-name">Water Player</span>
+            <span class="player-status">Waiting...</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="waiting-message">
+        <div class="spinner"></div>
+        <p id="waiting-text">Waiting for partner to join...</p>
+        <p class="share-text">Share the room code with your friend!</p>
+      </div>
+
+      <button id="leave-room-btn" class="btn btn-danger">
+        <span class="btn-icon">🚪</span>
+        Leave Room
+      </button>
+    </div>
+  </div>
+
+  <!-- Game Screen -->
+  <div id="game-screen" class="screen">
+    <div class="game-ui">
+      <div class="game-header">
+        <div class="game-stats-left">
+          <div class="stat-item">
+            <span class="stat-icon">🏆</span>
+            <span class="stat-label">Level:</span>
+            <span id="level-display" class="stat-value">1</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-icon">⭐</span>
+            <span class="stat-label">Score:</span>
+            <span id="score-display" class="stat-value">0</span>
+          </div>
+        </div>
+
+        <div class="room-badge">
+          <span class="badge-label">Room:</span>
+          <span id="game-room-code" class="badge-value">------</span>
+        </div>
+        
+        <div class="game-stats-right">
+          <div class="stat-item">
+            <span class="stat-icon">💀</span>
+            <span class="stat-label">Deaths:</span>
+            <span id="deaths-display" class="stat-value">0</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-icon">⏱️</span>
+            <span id="timer-display" class="stat-value">00:00</span>
+          </div>
+        </div>
+
+        <button id="quit-game-btn" class="btn-icon-small btn-quit" title="Leave game">❌</button>
+      </div>
+
+      <div class="game-status-banner">
+        <div id="status-message" class="status-text"></div>
+      </div>
+
+      <div id="game"></div>
+
+      <div class="game-footer">
+        <div class="controls-hint">
+          <span class="hint-item">⬅️➡️ Move</span>
+          <span class="hint-item">⬆️ / Space Jump</span>
+          <span class="hint-item">🎯 Cooperate to win!</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Notification Toast -->
+  <div id="notification-toast" class="toast"></div>
+
+  <!-- Load dependencies from CDN -->
+  <script src="https://cdn.socket.io/4.6.1/socket.io.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/phaser@3.55.2/dist/phaser.min.js"></script>
+
+  <!-- Load game scripts -->
+  <script src="js/ui.js"></script>
+  <script src="js/socket.js"></script>
+  <script src="js/game.js"></script>
+</body>
+</html>

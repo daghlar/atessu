@@ -1,0 +1,28 @@
+{
+  "name": "ates-ve-su",
+  "version": "1.0.0",
+  "description": "Ateş ve Su - 2 Oyuncu Real-Time Cooperative Platform Game",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js",
+    "build": "echo 'Build complete'"
+  },
+  "keywords": [
+    "game",
+    "multiplayer",
+    "cooperative",
+    "phaser",
+    "socket.io"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "socket.io": "^4.6.1",
+    "serverless-http": "^3.2.0"
+  },
+  "engines": {
+    "node": ">=14.x"
+  }
+}
