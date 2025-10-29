@@ -29,7 +29,8 @@ Tarayıcı tabanlı, gerçek zamanlı kooperatif platform oyunu. Profesyonel UI,
 ## 📦 Kurulum
 
 ```bash
-cd ates-ve-su
+git clone https://github.com/daghlar/atessu.git
+cd atessu
 npm install
 npm start
 ```
@@ -82,33 +83,19 @@ Tarayıcıda: **http://localhost:3000**
 - Direkt link: `http://localhost:3000?room=ABC123`
 - URL'den otomatik odaya katılma
 
-## 🏗️ Teknik Mimari
+## 🏗️ Dosya Yapısı
 
-### Server (Node.js)
-- **Express**: HTTP server
-- **Socket.IO**: WebSocket iletişimi
-- **Authoritative logic**: Tüm fizik ve çarpışma hesaplamaları
-- **Room management**: Oda oluşturma, silme, istatistik takibi
-- **60 FPS tick rate**: Gerçek zamanlı güncelleme
-
-### Client (Vanilla JS)
-- **Phaser 3**: Oyun rendering
-- **Socket.IO Client**: Server iletişimi
-- **UI Management**: Ekran geçişleri, animasyonlar
-- **State synchronization**: Server state'ini render etme
-
-### Dosya Yapısı
 ```
-ates-ve-su/
+atessu/
 ├─ package.json
 ├─ server.js (authoritative game logic + room management)
 ├─ README.md
 └─ public/
-   ├─ index.html (3 ekran: lobby, waiting, game)
+   ├─ index.html (3 ekran: lobby, character selection, waiting, game)
    ├─ css/
    │  └─ style.css (modern UI + animasyonlar)
    └─ js/
-      ├─ ui.js (UI management + timer)
+      ├─ ui.js (UI management + timer + character selection)
       ├─ socket.js (Socket.IO client + event handlers)
       └─ game.js (Phaser 3 game scene)
 ```
@@ -190,23 +177,26 @@ Bu proje eğitim amaçlıdır. Geliştirmeler için:
 4. Push edin
 5. Pull request açın
 
-## 🐛 Bilinen Sorunlar
+## 🚀 Deployment
 
-- Tek seviye haritası (genişletilebilir)
-- Basit grafik assets (iyileştirilebilir)
-- Ses efektleri yok (eklenebilir)
-- Mobil touch kontrolleri yok (eklenebilir)
+### Heroku (Önerilen)
+```bash
+heroku create atessu-game
+git push heroku main
+heroku open
+```
 
-## 🔮 Gelecek Özellikler
+### Railway.app
+1. https://railway.app/ adresine git
+2. GitHub ile giriş yap
+3. "Deploy from GitHub repo" → daghlar/atessu
+4. Otomatik deploy edilir
 
-- [ ] Çoklu seviye haritaları
-- [ ] Ses efektleri ve müzik
-- [ ] Mobil touch kontrolleri
-- [ ] Leaderboard sistemi
-- [ ] Replay sistemi
-- [ ] Power-up'lar
-- [ ] Daha fazla oyuncu (4 player)
-- [ ] Turnuva modu
+### Render.com
+1. https://render.com/ adresine git
+2. New Web Service → GitHub repo bağla
+3. Build command: `npm install`
+4. Start command: `npm start`
 
 ---
 
